@@ -20,71 +20,44 @@ SDK可以使用页面底部的按钮从[the LunarG website](https://vulkan.lunar
 
 在这个目录下有另外一个对开发有用的程序。`glslangValidator.exe`和`glslc.exe`将用来编译着色器脚本从可读的[GLSL](https://en.wikipedia.org/wiki/OpenGL_Shading_Language)到字节码。我们将在[shader modules](!zh-cn/Drawing_a_triangle/Graphics_pipeline_basics/Shader_modules)章节里面深入介绍。`Bin`目录还包含Vulkan加载程序的二进制文件和验证层，而`Lib`目录包含库。
 
-'Doc'目录包含关于Vulkan SDK的有用信息和一个离线版本的Vulkan的整个详细规范。最后，
-
-The `Doc` directory contains useful information about the Vulkan SDK and an
-offline version of the entire Vulkan specification. Lastly, there's the
-`Include` directory that contains the Vulkan headers. Feel free to explore the
-other files, but we won't need them for this tutorial.
+'Doc'目录包含关于Vulkan SDK的有用信息和一个离线版本的Vulkan的整个详细规范。最后，有一个包含Vulkan头文件的`Include`目录。您可以随意查看其他文件，但是本教程不需要它们。
 
 ### GLFW
 
-As mentioned before, Vulkan by itself is a platform agnostic API and does not
-include tools for creating a window to display the rendered results. To benefit
-from the cross-platform advantages of Vulkan and to avoid the horrors of Win32,
-we'll use the [GLFW library](http://www.glfw.org/) to create a window, which
-supports Windows, Linux and MacOS. There are other libraries available for this
-purpose, like [SDL](https://www.libsdl.org/), but the advantage of GLFW is that
-it also abstracts away some of the other platform-specific things in Vulkan
-besides just window creation.
+正如前面提到过的，Vulkan本身是一个与平台无关的API，不包括创建窗口去显示渲染结果的工具。为了从Vulkan的跨平台优势中获益，并避免Win32的可怕之处，我们将用支持Windows, Linux和MacOS的[GLFW 库](http://www.glfw.org/) 来创建窗口。还有其他可用的库能够达到这个目的，像[SDL](https://www.libsdl.org/), 但是GLFW的优点是它还抽象了Vulkan中除窗口创建之外的其他一些特定于平台的东西。
 
-You can find the latest release of GLFW on the [official website](http://www.glfw.org/download.html).
-In this tutorial we'll be using the 64-bit binaries, but you can of course also
-choose to build in 32 bit mode. In that case make sure to link with the Vulkan
-SDK binaries in the `Lib32` directory instead of `Lib`. After downloading it, extract the archive
-to a convenient location. I've chosen to create a `Libraries` directory in the
-Visual Studio directory under documents. Don't worry about there not being a
-`libvc-2017` folder, the `libvc-2015` one is compatible.
+你可以在[official website](http://www.glfw.org/download.html)找到GLFW的最新发布。在本教程中，我们将使用64位的二进制文件，但是当然你也可以选择在32位模式下构建的。那样的话，请确认链接`Lib32`目录下的Vulkan SDK 二进制文件代替`Lib`下的。把它下载下来后，解压到一个方便的位置。我选择在`文档`下的Visual Studio目录中创建一个`Libraries`目录。不要担心没有`libvc-2017`文件夹，`libvc-2015`文件夹是兼容的。
 
 ![](/images/glfw_directory.png)
 
 ### GLM
 
-Unlike DirectX 12, Vulkan does not include a library for linear algebra
-operations, so we'll have to download one. [GLM](http://glm.g-truc.net/) is a
-nice library that is designed for use with graphics APIs and is also commonly
-used with OpenGL.
+不像 DirectX 12, Vulkan 没有包含线性代数操作的库，所以，我们必须下载一个，[GLM](http://glm.g-truc.net/)是一个很好的库，它是为图形api设计的，通常也与OpenGL一起使用。
 
-GLM is a header-only library, so just download the [latest version](https://github.com/g-truc/glm/releases)
-and store it in a convenient location. You should have a directory structure
-similar to the following now:
+GLM是一个 header-only 的库，所以只需要下载[最新版本](https://github.com/g-truc/glm/releases),保存到一个方便的位置。你应该有一个与以下所示类似的目录结构：
 
 ![](/images/library_directory.png)
 
-### Setting up Visual Studio
+### 设置 Visual Studio
 
-Now that you've installed all of the dependencies we can set up a basic Visual
-Studio project for Vulkan and write a little bit of code to make sure that
-everything works.
+现在您已经安装了所有的依赖项，我们可以为Vulkan设置一个基本的Visual Studio项目，并编写一些代码来确保一切正常。
 
-Start Visual Studio and create a new `Windows Desktop Wizard` project by entering a name and pressing `OK`.
+启动 Visual Studio,创建一个新的`Windows Desktop Wizard`工程并输出名称，点击`OK`。
 
 ![](/images/vs_new_cpp_project.png)
 
-Make sure that `Console Application (.exe)` is selected as application type so that we have a place to print debug messages to, and check `Empty Project` to prevent Visual Studio from adding boilerplate code.
+确保`Console Application(.exe)`被选择为应用程序类型，这样我们就有一个地方来打印调试消息，并检查`Empty Project`，以防止Visual Studio添加样板代码。
+
 
 ![](/images/vs_application_settings.png)
 
-Press `OK` to create the project and add a C++ source file. You should
-already know how to do that, but the steps are included here for completeness.
+点`确定`创建工程和添加C++源文件。你应该已经知道怎么做到了，但是为了完整起见，这里包含了这些步骤。
 
 ![](/images/vs_new_item.png)
 
 ![](/images/vs_new_source_file.png)
 
-Now add the following code to the file. Don't worry about trying to
-understand it right now; we're just making sure that you can compile and run
-Vulkan applications. We'll start from scratch in the next chapter.
+现在添加以下代码到文件中。现在不用担心尝试去弄懂它；我们只是确保您可以编译并运行Vulkan程序。我们将在下一章从零开始。
 
 ```c++
 #define GLFW_INCLUDE_VULKAN
@@ -123,145 +96,103 @@ int main() {
     return 0;
 }
 ```
-
-Let's now configure the project to get rid of the errors. Open the project
-properties dialog and ensure that `All Configurations` is selected, because most
-of the settings apply to both `Debug` and `Release` mode.
+现在，让我们配置项目以消除错误。打开工程属性对话框，确保`All Configurations`被选中，因为大多数设置同时应用于`Debug`和`Release`模式。
 
 ![](/images/vs_open_project_properties.png)
 
 ![](/images/vs_all_configs.png)
 
-Go to `C++ -> General -> Additional Include Directories` and press `<Edit...>`
-in the dropdown box.
+转到 `C++ -> General -> Additional Include Directories`,在下拉框中点击`<Edit...>`。
 
 ![](/images/vs_cpp_general.png)
 
-Add the header directories for Vulkan, GLFW and GLM:
+为Vulkan，GLFW，GLM 添加文件路径：
 
 ![](/images/vs_include_dirs.png)
 
-Next, open the editor for library directories under `Linker -> General`:
+下一步，在`Linker -> General`下打开库路径编辑器：
 
 ![](/images/vs_link_settings.png)
 
-And add the locations of the object files for Vulkan and GLFW:
+然后为Vulkan和GLFW 添加库文件的位置:
 
 ![](/images/vs_link_dirs.png)
 
-Go to `Linker -> Input` and press `<Edit...>` in the `Additional Dependencies`
-dropdown box.
+转到`Linker -> Input`，在 `Additional Dependencies` 下拉框中点击 `<Edit...>`。
 
 ![](/images/vs_link_input.png)
 
-Enter the names of the Vulkan and GLFW object files:
+输入 Vulkan 和 GLFW 库文件名：
 
 ![](/images/vs_dependencies.png)
 
-And finally change the compiler to support C++17 features:
+最后改变编译器支持c++ 17的特性:
 
-![](/images/vs_cpp17.png)
+![](../images/vs_cpp17.png)
 
-You can now close the project properties dialog. If you did everything right
-then you should no longer see any more errors being highlighted in the code.
+您现在可以关闭工程属性对话模式了。如果你所有的都做对了，那么你应该不会在代码中看到任何高亮的错误信息。
 
-Finally, ensure that you are actually compiling in 64 bit mode:
+最后，确保你是在64位模式下编译：
 
 ![](/images/vs_build_mode.png)
 
-Press `F5` to compile and run the project and you should see a command prompt
-and a window pop up like this:
+按`F5`来编译和运行工程，你应该会看到一个命令行和一个窗口弹出来，像这样：
 
 ![](/images/vs_test_window.png)
 
-The number of extensions should be non-zero. Congratulations, you're all set for
-[playing with Vulkan](!zh-cn/Drawing_a_triangle/Setup/Base_code)!
+扩展的数目应该是非零的。恭喜你，你都准备好了[和 Vulkan 一起玩](!zh-cn/Drawing_a_triangle/Setup/Base_code)!
 
 ## Linux
 
-These instructions will be aimed at Ubuntu users, but you may be able to follow
-along by compiling the LunarG SDK yourself and changing the `apt` commands to
-the package manager commands that are appropriate for you. You should already
-have a version of GCC installed that supports modern C++ (4.8 or later). You
-also need both CMake and make.
+这些说明是针对Ubuntu用户的，但是您可以自己编译LunarG SDK并将`apt`命令更改为适合您的包管理器命令。您应该已经安装了一个支持现代c++(4.8或更高版本)的GCC版本。您还需要CMake和make。
 
 ### Vulkan SDK
 
-The most important component you'll need for developing Vulkan applications is
-the SDK. It includes the headers, standard validation layers, debugging tools
-and a loader for the Vulkan functions. The loader looks up the functions in the
-driver at runtime, similarly to GLEW for OpenGL - if you're familiar with that.
+开发Vulkan应用程序最重要的组件是SDK。它包括头文件、标准验证层、调试工具和Vulkan函数的加载程序。加载器在运行时查找驱动程序中的函数，这类似于针对OpenGL的GLEW—如果您熟悉它的话。
 
-The SDK can be downloaded from [the LunarG website](https://vulkan.lunarg.com/)
-using the buttons at the bottom of the page. You don't have to create an
-account, but it will give you access to some additional documentation that may
-be useful to you.
+SDK可以使用页面底部的按钮从[the LunarG website](https://vulkan.lunarg.com/)下载。您不必创建帐户，但它将为您提供一些可能对您有用的附加文档。
 
 ![](/images/vulkan_sdk_download_buttons.png)
 
-Open a terminal in the directory where you've downloaded the `.tar.gz` archive and extract it:
+在你下载的`.tar.gz`包文件所在的目录中打开一个终端，然后解压它：
 
 ```bash
 tar -xzf vulkansdk-linux-x86_64-xxx.tar.gz
 ```
+它将把SDK中的所有文件提取到工作目录中以SDK版本名命名的子目录中。将目录移动到一个方便的位置，并注意它的路径。在SDK的根目录下打开终端，它将包含像 ` build_examples.sh ` 这样的文件
 
-It will extract all of the files in the SDK to a subdirectory with the SDK version as name in the working directory. Move the directory to a convenient place and take
-note of its path. Open a terminal in the root directory of the SDK, which will
-contain files like `build_examples.sh`.
-
-The samples in the SDK and one of the libraries that you will later use for your
-program depend on the XCB library. This is a C library that is used to interface
-with the X Window System. It can be installed in Ubuntu from the `libxcb1-dev`
-package. You also need the generic X development files that come with the
-`xorg-dev` package.
+SDK中的示例和稍后将用于程序的一个库依赖于XCB库。这是一个用于与X窗口系统交互的C库。它可以通过`libxcb1-dev`包安装到Ubuntu中。您还需要`xorg-dev`包附带的通用X开发文件。
 
 ```bash
 sudo apt install libxcb1-dev xorg-dev
 ```
-
-You can now build the Vulkan examples in the SDK by running:
+现在你可以构建SDK中Vulkan例子，执行：
 
 ```bash
 ./build_examples.sh
 ```
-
-If compilation was successful, then you should now have a
-`./examples/build/vkcube` executable. Run it from the `examples/build` directory
-with `./vkcube` and ensure that you see the following pop up in a window:
+如果编译成功，你将得到一个`./examples/build/vkcube`可执行文件。在`examples/build`目录中运行`./vkcube`,确保你看到以下弹出窗口:
 
 ![](/images/cube_demo_nowindow.png)
 
-If you receive an error message then ensure that your drivers are up-to-date,
-include the Vulkan runtime and that your graphics card is supported. See the
-[introduction chapter](!zh-cn/Introduction) for links to drivers from the major
-vendors.
+如果你得到一个错误信息，那么确认你的驱动是最新的，包括Vulkan运行时并且你的图形卡被支持。参照[introduction chapter](!zh-cn/Introduction)链接到主要供应商的驱动程序。
+
 
 ### GLFW
 
-As mentioned before, Vulkan by itself is a platform agnostic API and does not
-include tools for creation a window to display the rendered results. To benefit
-from the cross-platform advantages of Vulkan and to avoid the horrors of X11,
-we'll use the [GLFW library](http://www.glfw.org/) to create a window, which
-supports Windows, Linux and MacOS. There are other libraries available for this
-purpose, like [SDL](https://www.libsdl.org/), but the advantage of GLFW is that
-it also abstracts away some of the other platform-specific things in Vulkan
-besides just window creation.
+正如前面提到过的，Vulkan本身是一个与平台无关的API，不包括创建窗口去显示渲染结果的工具。为了从Vulkan的跨平台优势中获益，并避免Win32的可怕之处，我们将用支持Windows, Linux和MacOS的[GLFW 库](http://www.glfw.org/) 来创建窗口。还有其他可用的库能够达到这个目的，像[SDL](https://www.libsdl.org/), 但是GLFW的优点是它还抽象了Vulkan中除窗口创建之外的其他一些特定于平台的东西。
 
-We'll be installing GLFW from source instead of using a package, because the
-Vulkan support requires a recent version. You can find the sources on the [official website](http://www.glfw.org/).
-Extract the source code to a convenient directory and open a terminal in the
-directory with files like `CMakeLists.txt`.
+我们将从源码安装GLFW而不是用安装包，是因为Vulkan的支持需要最近的版本。你可以在[official website](http://www.glfw.org/)找到源码。
 
-Run the following commands to generate a makefile and compile GLFW:
+将源码解压到一个方便的目录，在有像`CMakeLists.txt`这个文件的目录打开一个终端：
+
+执行以下命令来生成makefile，并编译GLFW：
 
 ```bash
 cmake .
 make
 ```
-
-You may see a warning stating `Could NOT find Vulkan`, but you can safely ignore
-this message. If compilation was successful, then you can install GLFW into the
-system libraries by running:
+你可能会看到以`Could NOT find Vulkan`开头的警告，但你可以安全的忽略这些信息。如果编译是成功的，那么你可以安装GLFW到系统库，执行：
 
 ```bash
 sudo make install
@@ -269,22 +200,17 @@ sudo make install
 
 ### GLM
 
-Unlike DirectX 12, Vulkan does not include a library for linear algebra
-operations, so we'll have to download one. [GLM](http://glm.g-truc.net/) is a
-nice library that is designed for use with graphics APIs and is also commonly
-used with OpenGL.
+不像 DirectX 12, Vulkan 没有包含线性代数操作的库，所以，我们必须下载一个，[GLM](http://glm.g-truc.net/)是一个很好的库，它是为图形api设计的，通常也与OpenGL一起使用。
 
-It is a header-only library that can be installed from the `libglm-dev` package:
+它是一个 header-only 库，可以通过`libglm-dev`包来安装：
 
 ```bash
 sudo apt install libglm-dev
 ```
 
-### Setting up a makefile project
+### 设置一个 makefile 工程
 
-Now that you have installed all of the dependencies, we can set up a basic
-makefile project for Vulkan and write a little bit of code to make sure that
-everything works.
+现在您已经安装了所有的依赖项，我们可以为Vulkan设置一个基本的Visual Studio项目，并编写一些代码来确保一切正常。
 
 Create a new directory at a convenient location with a name like `VulkanTest`.
 Create a source file called `main.cpp` and insert the following code. Don't
