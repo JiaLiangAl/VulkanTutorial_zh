@@ -20,7 +20,7 @@ SDK可以使用页面底部的按钮从[the LunarG website](https://vulkan.lunar
 
 在这个目录下有另外一个对开发有用的程序。`glslangValidator.exe`和`glslc.exe`将用来编译着色器脚本从可读的[GLSL](https://en.wikipedia.org/wiki/OpenGL_Shading_Language)到字节码。我们将在[shader modules](!zh-cn/Drawing_a_triangle/Graphics_pipeline_basics/Shader_modules)章节里面深入介绍。`Bin`目录还包含Vulkan加载程序的二进制文件和验证层，而`Lib`目录包含库。
 
-'Doc'目录包含关于Vulkan SDK的有用信息和一个离线版本的Vulkan的整个详细规范。最后，有一个包含Vulkan头文件的`Include`目录。您可以随意查看其他文件，但是本教程不需要它们。
+`Doc`目录包含关于Vulkan SDK的有用信息和一个离线版本的Vulkan的整个详细规范。最后，有一个包含Vulkan头文件的`Include`目录。您可以随意查看其他文件，但是本教程不需要它们。
 
 ### GLFW
 
@@ -212,11 +212,7 @@ sudo apt install libglm-dev
 
 现在您已经安装了所有的依赖项，我们可以为Vulkan设置一个基本的Visual Studio项目，并编写一些代码来确保一切正常。
 
-Create a new directory at a convenient location with a name like `VulkanTest`.
-Create a source file called `main.cpp` and insert the following code. Don't
-worry about trying to understand it right now; we're just making sure that you
-can compile and run Vulkan applications. We'll start from scratch in the next
-chapter.
+在方便的位置创建一个名字像`VulkanTest`的目录。创建一个名为`main.cpp`的源文件，插入如下代码。现在不用担心尝试去弄懂它；我们只是确保您可以编译并运行Vulkan程序。我们将在下一章从零开始。
 
 ```c++
 #define GLFW_INCLUDE_VULKAN
@@ -255,55 +251,35 @@ int main() {
     return 0;
 }
 ```
+下一步，我们将写一个makefile来编译和运行这基本的Vulkan代码。创建一个空的文件，命名为`Makefile`。我将假设您对于makefiles已经有一些基本的经验，比如变量和规则如何工作。如果你没有，通过[本教程](https://makefiletutorial.com/)，您可以非常快速地掌握速度。
 
-Next, we'll write a makefile to compile and run this basic Vulkan code. Create a
-new empty file called `Makefile`. I will assume that you already have some basic
-experience with makefiles, like how variables and rules work. If not, you can
-get up to speed very quickly with [this tutorial](https://makefiletutorial.com/).
+我们首先定义两个变量来简化文件的其余部分。定义一个`VULKAN_SDK_PATH`变量，该变量指的是‘x86_64’目录在LunarG SDK中的位置，例如:
 
-We'll first define a couple of variables to simplify the remainder of the file.
-Define a `VULKAN_SDK_PATH` variable that refers to the location of the `x86_64`
-directory in the LunarG SDK, for example:
 
 ```make
 VULKAN_SDK_PATH = /home/user/VulkanSDK/x.x.x.x/x86_64
 ```
-
-Make sure to replace `user` with your own username and `x.x.x.x` with the right version. Next, define a `CFLAGS` variable that will specify the basic compiler flags:
+确保用您自己的用户名代替`user`,用正确的版本号代替`x.x.x.x`。下面，定义一个`CFLAGS`变量，指定基本的编译器标识：
 
 ```make
 CFLAGS = -std=c++17 -I$(VULKAN_SDK_PATH)/include
 ```
-
-We're going to use modern C++ (`-std=c++17`), and we need to be
-able to locate `vulkan.h` in the LunarG SDK.
-
-Similarly, define the linker flags in a `LDFLAGS` variable:
+我们将用现代C++（`-std=c++17`），并且我们要能够定位到LunarG SDK中的`vulkan.h`。类似地，在变量 `LDFLAGS` 中定义链接器标识：
 
 ```make
 LDFLAGS = -L$(VULKAN_SDK_PATH)/lib `pkg-config --static --libs glfw3` -lvulkan
 ```
+第一个标识表明我们想在LunarG SDK的`x86_64/lib`目录中找到比如`libvulkan.so`这些库。第二个组件调用`pkg-config `来自动检索使用GLFW构建应用程序所需的所有链接器标记。最后，`-lvulkan `链接到LunarG SDK附带的Vulkan函数加载器。
 
-The first flag specifies that we want to be able to find libraries like
-`libvulkan.so` in the LunarG SDK's `x86_64/lib` directory. The second component
-invokes `pkg-config` to automatically retrieve all of the linker flags necessary
-to build an application with GLFW. Finally, `-lvulkan` links with the Vulkan
-function loader that comes with the LunarG SDK.
-
-Specifying the rule to compile `VulkanTest` is straightforward now. Make sure to
-use tabs for indentation instead of spaces.
+现在可以直接指定编译`VulkanTest`的规则。确保使用制表符而不是空格进行缩进。
 
 ```make
 VulkanTest: main.cpp
     g++ $(CFLAGS) -o VulkanTest main.cpp $(LDFLAGS)
 ```
+通过保存makefile,在有`main.cpp`和`Makefile`的目录执行`make`来验证规则是否工作。这将得到一个`VulkanTest`的可执行文件。
 
-Verify that this rule works by saving the makefile and running `make` in the
-directory with `main.cpp` and `Makefile`. This should result in a `VulkanTest`
-executable.
-
-We'll now define two more rules, `test` and `clean`, where the former will
-run the executable and the latter will remove a built executable:
+现在我们定义另外两个规则，`test`和`clean`,前者将运行可执行文件，后者将删除一个构建的可执行文件:
 
 ```make
 .PHONY: test clean
@@ -314,35 +290,24 @@ test: VulkanTest
 clean:
     rm -f VulkanTest
 ```
-
-You will find that `make clean` works perfectly fine, but `make test` will most
-likely fail with the following error message:
+你会发现`make clean`工作得非常好，但`make test`最可能失败的错误信息如下:
 
 ```text
 ./VulkanTest: error while loading shared libraries: libvulkan.so.1: cannot open shared object file: No such file or directory
 ```
-
-That's because `libvulkan.so` is not installed as system library. To alleviate
-this problem, explicitly specify the library loading path using the
-`LD_LIBRARY_PATH` environment variable:
+那是因为`libvulkan.so`没有作为系统库安装。要缓解这个问题，通过环境变量`LD_LIBRARY_PATH`显式的指定库的加载路径：
 
 ```make
 test: VulkanTest
     LD_LIBRARY_PATH=$(VULKAN_SDK_PATH)/lib ./VulkanTest
 ```
-
-The program should now run successfully, and display the number of Vulkan
-extensions. The application should exit with the success return code (`0`) when
-you close the empty window. However, there is one more variable that you need to
-set. We will start using validation layers in Vulkan and you need to tell the
-Vulkan library where to load these from using the `VK_LAYER_PATH` variable:
+程序现在应该可以成功的运行，并且显示Vulkan的扩展数目。当你关闭这个空白窗口时，应用程序应该使用成功返回代码(`0 `)退出。然而，还有更多的变量需要设置。我们将开始使用验证层在Vulkan，你需要告诉Vulkan库从哪里加载这些使用`VK_LAYER_PATH `变量:
 
 ```make
 test: VulkanTest
     LD_LIBRARY_PATH=$(VULKAN_SDK_PATH)/lib VK_LAYER_PATH=$(VULKAN_SDK_PATH)/etc/vulkan/explicit_layer.d ./VulkanTest
 ```
-
-You should now have a complete makefile that resembles the following:
+您现在应该有一个完整的makdfile，类似如下：
 
 ```make
 VULKAN_SDK_PATH = /home/user/VulkanSDK/x.x.x.x/x86_64
@@ -361,35 +326,30 @@ test: VulkanTest
 clean:
     rm -f VulkanTest
 ```
+您现在可以以这个目录作为你的vulkan工程的模板。做一份拷贝，重命名为比如`HelloTriangle`，删除`main.cpp`里面的所有代码。
 
-You can now use this directory as a template for your Vulkan projects. Make a
-copy, rename it to something like `HelloTriangle` and remove all of the code
-in `main.cpp`.
+在我们开始前，让我们浏览Vulkan SDK更多一些。这里有另外一个对开发非常有用的程序。`x86_64/bin/glslangValidator`和`x86_64/bin/glslc`用来将着色器脚本由可读的[GLSL](https://en.wikipedia.org/wiki/OpenGL_Shading_Language)编译成字节码。我们将在[shader modules](!zh-cn/Drawing_a_triangle/Graphics_pipeline_basics/Shader_modules)章节里面深入介绍。
 
-Before we move on, let's explore the Vulkan SDK a bit more. There is another program in it that will be very useful for development. The `x86_64/bin/glslangValidator` and `x86_64/bin/glslc` programs will be used to compile shaders from
-the human-readable [GLSL](https://en.wikipedia.org/wiki/OpenGL_Shading_Language)
-to bytecode. We'll cover this in depth in the [shader modules](!zh-cn/Drawing_a_triangle/Graphics_pipeline_basics/Shader_modules)
-chapter.
+`Doc`目录包含关于Vulkan SDK的有用信息和一个离线版本的Vulkan的整个详细规范。您可以随意查看其他文件，但是本教程不需要它们。
 
-The `Doc` directory contains useful information about the Vulkan SDK and an
-offline version of the entire Vulkan specification. Feel free to explore the
-other files, but we won't need them for this tutorial.
+你现在完全准备好了[真实的冒险](!zh-cn/Drawing_a_triangle/Setup/Base_code)!
 
-You are now all set for [the real adventure](!zh-cn/Drawing_a_triangle/Setup/Base_code).
 
 ## MacOS
 
-These instructions will assume you are using Xcode and the [Homebrew package manager](https://brew.sh/). Also, keep in mind that you will need at least MacOS version 10.11, and your device needs to support the [Metal API](https://en.wikipedia.org/wiki/Metal_(API)#Supported_GPUs).
+这些介绍将假定你正在用Xcode和[Homebrew包管理器](https://brew.sh/).还有，记住您至少需要MacOS 10.11版本，并且您的设置要支持[Metal API](https://en.wikipedia.org/wiki/Metal_(API)#Supported_GPUs)。
+
 
 ### Vulkan SDK
 
-The most important component you'll need for developing Vulkan applications is the SDK. It includes the headers, standard validation layers, debugging tools and a loader for the Vulkan functions. The loader looks up the functions in the driver at runtime, similarly to GLEW for OpenGL - if you're familiar with that.
+开发Vulkan应用程序最重要的组件是SDK。它包括头文件、标准验证层、调试工具和Vulkan函数的加载程序。加载器在运行时查找驱动程序中的函数，这类似于针对OpenGL的GLEW—如果您熟悉它的话。
 
-The SDK can be downloaded from [the LunarG website](https://vulkan.lunarg.com/) using the buttons at the bottom of the page. You don't have to create an account, but it will give you access to some additional documentation that may be useful to you.
+SDK可以使用页面底部的按钮从[the LunarG website](https://vulkan.lunarg.com/)下载。您不必创建帐户，但它将为您提供一些可能对您有用的附加文档。
 
 ![](/images/vulkan_sdk_download_buttons.png)
 
-The SDK version for MacOS internally uses [MoltenVK](https://moltengl.com/). There is no native support for Vulkan on MacOS, so what MoltenVK does is actually act as a layer that translates Vulkan API calls to Apple's Metal graphics framework. With this you can take advantage of debugging and performance benefits of Apple's Metal framework.
+MacOS内部的使用SDK版本是[MoltenVK](https://moltengl.com/)。在MacOS上没有对Vulkan本地的支持，所以MoltenVK实际上充当了一个层，将Vulkan API调用转换为苹果的Metal graphics框架。有了它，您可以利用Apple的Metal框架的调试和性能优势。
+
 
 After downloading it, simply extract the contents to a folder of your choice (keep in mind you will need to reference it when creating your projects on Xcode). Inside the extracted folder, in the `Applications` folder you should have some executable files that will run a few demos using the SDK. Run the `cube` executable and you will see the following:
 
