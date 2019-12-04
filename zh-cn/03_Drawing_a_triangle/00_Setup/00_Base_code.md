@@ -1,8 +1,5 @@
-## General structure
-
-In the previous chapter you've created a Vulkan project with all of the proper
-configuration and tested it with the sample code. In this chapter we're starting
-from scratch with the following code:
+## 一般结构
+在前一章中，您已经使用所有适当的配置创建了一个Vulkan项目，并使用示例代码对其进行了测试。在本章中，我们将从头开始使用以下代码:
 
 ```c++
 #include <vulkan/vulkan.h>
@@ -47,72 +44,29 @@ int main() {
     return EXIT_SUCCESS;
 }
 ```
+我们首先包含LunarG SDK 的头文件，它提供函数，结构体和枚举。`stdexcept`和`iostream`头文件包含进来为了报告和传播错误。“functional”头文件将用于资源管理部分中的lambda函数。`cstdlib`头文件提供`EXIT_SUCCESS`和`EXIT_FAILURE`宏。
 
-We first include the Vulkan header from the LunarG SDK, which provides the
-functions, structures and enumerations. The `stdexcept` and `iostream` headers
-are included for reporting and propagating errors. The `functional` headers will
-be used for a lambda functions in the resource management section. The `cstdlib`
-header provides the `EXIT_SUCCESS` and `EXIT_FAILURE` macros.
+程序本身被封装到一个类中，在这个类中，我们将把Vulkan对象存储为私有类成员，并添加一些函数来初始化它们，这些函数将从`initVulkan`函数中调用。一旦所有的都准备好了，我们就进入主循环去渲染帧。我们将填充`mainLoop`函数，以包含一个循环，该循环迭代直到窗口在某一时刻关闭。一旦窗口关闭，`mainLoop`返回，我们将要确保在`cleanup`函数中释放我们用过的资源。
 
-The program itself is wrapped into a class where we'll store the Vulkan objects
-as private class members and add functions to initiate each of them, which will
-be called from the `initVulkan` function. Once everything has been prepared, we
-enter the main loop to start rendering frames. We'll fill in the `mainLoop`
-function to include a loop that iterates until the window is closed in a moment.
-Once the window is closed and `mainLoop` returns, we'll make sure to deallocate
-the resources we've used in the `cleanup` function.
+如果在执行过程中发生了任何致命错误，那么我们将抛出一个`std::runtime_error` 异常，并附带一个描述性消息，该消息将传播回`main`函数并打印到命令提示符。为了处理各种标准异常类型，我们捕获更一般的`std::exception`。我们将很快处理的一个错误示例是发现某个必需的扩展不受支持。
 
-If any kind of fatal error occurs during execution then we'll throw a
-`std::runtime_error` exception with a descriptive message, which will propagate
-back to the `main` function and be printed to the command prompt. To handle 
-a variety of standard exception types as well, we catch the more general `std::exception`. One example of an error that we will deal with soon is finding 
-out that a certain required extension is not supported.
+大致上，后面的每一章都会添加一个新函数，这个函数将从`initVulkan`中调用，一个或多个新的Vulkan对象将被添加到`cleanup`中需要释放的私有类成员中。
 
-Roughly every chapter that follows after this one will add one new function that
-will be called from `initVulkan` and one or more new Vulkan objects to the
-private class members that need to be freed at the end in `cleanup`.
+## 资源管理
+就像分配给`malloc`的每一块内存都需要调用`free`一样，我们创建的每一个Vulkan对象都需要在不再需要时显式销毁。在现代c++代码中，可以通过`<memory>`头中的工具来实现自动的资源管理，但是在本教程中，我选择了对Vulkan对象的分配和回收进行显式说明。毕竟，Vulkan的宗旨是明确每个操作以避免错误，所以明确对象的生命周期有助于了解API的工作方式。
 
-## Resource management
+学习完本教程后，您可以通过重载`std::shared_ptr`来实现自动资源管理。使用[RAII](https://en.wikipedia.org/wiki/resource_tion_is_initial化)是应对大型Vulkan程序的推荐方法，但是为了便于学习，最好知道幕后发生了什么。
 
-Just like each chunk of memory allocated with `malloc` requires a call to
-`free`, every Vulkan object that we create needs to be explicitly destroyed when
-we no longer need it. In modern C++ code it is possible to do automatic resource
-management through the utilities in the `<memory>` header, but I've chosen to be
-explicit about allocation and deallocation of Vulkan objects in this tutorial.
-After all, Vulkan's niche is to be explicit about every operation to avoid
-mistakes, so it's good to be explicit about the lifetime of objects to learn how
-the API works.
+Vulkan 对象可以通过像`vkCreateXXX`的函数直接创建，也可以通过拥有像`vkAllocateXXX`函数的对象分配。当确认一个对象已经不会在任何地方用到之后，您需要使用对应的`vkDestroyXXX`和`vkFreeXXX`来销毁它。对于不同类型的对象，这些函数的参数通常是不同的，但是有一个参数是它们都共享的:`pAllocator`。这是一个可选参数，允许您为自定义内存分配器指定回调。我们将在教程中忽略这个参数，并始终传递`nullptr`作为参数。
 
-After following this tutorial, you could implement automatic resource management
-by overloading `std::shared_ptr` for example. Using [RAII](https://en.wikipedia.org/wiki/Resource_Acquisition_Is_Initialization)
-to your advantage is the recommended approach for larger Vulkan programs, but
-for learning purposes it's always good to know what's going on behind the
-scenes.
-
-Vulkan objects are either created directly with functions like `vkCreateXXX`, or
-allocated through another object with functions like `vkAllocateXXX`. After
-making sure that an object is no longer used anywhere, you need to destroy it
-with the counterparts `vkDestroyXXX` and `vkFreeXXX`. The parameters for these
-functions generally vary for different types of objects, but there is one
-parameter that they all share: `pAllocator`. This is an optional parameter that
-allows you to specify callbacks for a custom memory allocator. We will ignore
-this parameter in the tutorial and always pass `nullptr` as argument.
-
-## Integrating GLFW
-
-Vulkan works perfectly fine without a creating a window if you want to use it
-off-screen rendering, but it's a lot more exciting to actually show something!
-First replace the `#include <vulkan/vulkan.h>` line with
+## 集成 GLFW
+Vulkan在没有创建窗口的情况下工作得非常好，如果你想在屏幕外使用它的渲染，但是它更令人兴奋的是实际显示一些东西!首先替换`#include <vulkan/vulkan.h>`这一行，用：
 
 ```c++
 #define GLFW_INCLUDE_VULKAN
 #include <GLFW/glfw3.h>
 ```
-
-That way GLFW will include its own definitions and automatically load the Vulkan
-header with it. Add a `initWindow` function and add a call to it from the `run`
-function before the other calls. We'll use that function to initialize GLFW and
-create a window.
+这样，GLFW将包含自己的定义，并自动加载Vulkan标头。添加一个`initWindow`函数，并在其他调用之前从`run`函数向其添加一个调用。我们将使用该函数初始化GLFW并创建一个窗口。
 
 ```c++
 void run() {
@@ -127,50 +81,36 @@ private:
 
     }
 ```
-
-The very first call in `initWindow` should be `glfwInit()`, which initializes
-the GLFW library. Because GLFW was originally designed to create an OpenGL
-context, we need to tell it to not create an OpenGL context with a subsequent
-call:
+在`initWindow`首先调用的必须是`glfwInit()`，它初始化GLFW库。因为GLFW最初是为了创建OpenGL上下文而设计的，我们需要告诉它不要用后续调用来创建OpenGL上下文:
 
 ```c++
 glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
 ```
-
-Because handling resized windows takes special care that we'll look into later,
-disable it for now with another window hint call:
+因为处理调整大小的窗口需要特别小心，我们将在后面讨论，现在用另一个窗口提示调用禁用它:
 
 ```c++
 glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
 ```
-
-All that's left now is creating the actual window. Add a `GLFWwindow* window;`
-private class member to store a reference to it and initialize the window with:
+现在剩下的就是创建这个真正的窗口。添加一个`GLFWwindow* window;`私有成员来保存它的引用，和初始化，用：
 
 ```c++
 window = glfwCreateWindow(800, 600, "Vulkan", nullptr, nullptr);
 ```
 
-The first three parameters specify the width, height and title of the window.
-The fourth parameter allows you to optionally specify a monitor to open the
-window on and the last parameter is only relevant to OpenGL.
+前三个参数指定窗口的宽度、高度和标题。第四个参数允许您有选择地指定要打开窗口的监视器，最后一个参数只与OpenGL相关。
 
-It's a good idea to use constants instead of hardcoded width and height numbers
-because we'll be referring to these values a couple of times in the future. I've
-added the following lines above the `HelloTriangleApplication` class definition:
+使用常量而不是硬编码的宽度和高度数是一个好主意，因为以后我们将多次引用这些值。我在`HelloTriangleApplication`类定义上面添加了以下代码:
 
 ```c++
 const int WIDTH = 800;
 const int HEIGHT = 600;
 ```
-
-and replaced the window creation call with
+替换窗口的创建调用过程，用：
 
 ```c++
 window = glfwCreateWindow(WIDTH, HEIGHT, "Vulkan", nullptr, nullptr);
 ```
-
-You should now have a `initWindow` function that looks like this:
+你现在应该有一个`initWindow`功能，看起来像这样:
 
 ```c++
 void initWindow() {
@@ -182,6 +122,7 @@ void initWindow() {
     window = glfwCreateWindow(WIDTH, HEIGHT, "Vulkan", nullptr, nullptr);
 }
 ```
+要保持应用程序运行，直到出现错误或窗口关闭，我们需要添加一个事件循环到`mainLoop`函数如下:
 
 To keep the application running until either an error occurs or the window is
 closed, we need to add an event loop to the `mainLoop` function as follows:
@@ -193,13 +134,9 @@ void mainLoop() {
     }
 }
 ```
+这段代码应该相当容易理解。它循环并检查像按X按钮这样的事件，直到用户关闭窗口。这也是我们稍后将调用一个函数来呈现单个帧的循环。
 
-This code should be fairly self-explanatory. It loops and checks for events like
-pressing the X button until the window has been closed by the user. This is also
-the loop where we'll later call a function to render a single frame.
-
-Once the window is closed, we need to clean up resources by destroying it and
-terminating GLFW itself. This will be our first `cleanup` code:
+一旦窗口关闭，我们需要通过破坏它和终止GLFW本身来清理资源。这将是我们的第一个`cleanup`代码:
 
 ```c++
 void cleanup() {
@@ -208,9 +145,7 @@ void cleanup() {
     glfwTerminate();
 }
 ```
-
-When you run the program now you should see a window titled `Vulkan` show up
-until the application is terminated by closing the window. Now that we have the
-skeleton for the Vulkan application, let's [create the first Vulkan object](!zh-cn/Drawing_a_triangle/Setup/Instance)!
+当你现在运行程序时，你应该会看到一个名为`Vulkan`的窗口，直到关闭该窗口，应用程序才会终止。现在我们已经有了Vulkan应用程序的框架，让我们[创建第一个Vulkan对象](!zh-cn/Drawing_a_triangle/Setup/Instance)
 
 [C++ code](/code/00_base_code.cpp)
+
