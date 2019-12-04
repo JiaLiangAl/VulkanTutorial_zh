@@ -1,21 +1,22 @@
-## General
+## 一般
 
-This privacy policy applies to the information that is collected when you use vulkan-tutorial.com or any of its subdomains. It describes how the owner of this website, Alexander Overvoorde, collects, uses and shares information about you.
+本隐私政策适用于您使用vulkan-tutorial.com或其任何子域名时收集的信息。它描述了这个网站的所有者，Alexander Overvoorde，如何收集、使用和分享关于你的信息。
 
-## Analytics
+## 分析
 
-This website collects analytics about visitors using a self-hosted instance of Matomo ([https://matomo.org/](https://matomo.org/)), formerly known as Piwik. It records which pages you visit, what type of device and browser you use, how long you view a given page and where you came from. This information is anonymized by only recording the first two bytes of your IP address (e.g. `123.123.xxx.xxx`). These anonymized logs are stored for an indefinite amount of time.
+本网站收集了关于使用Matomo ([https://matomo.org/](https://matomo.org/)的自托管实例的访问者的分析，该实例以前称为Piwik。它会记录你访问了哪些页面，你使用的设备和浏览器的类型，你浏览一个页面的时间以及你来自哪里。这些信息通过只记录IP地址的前两个字节来匿名化。`123.123.xxx.xxx`)。这些匿名的日志存储的时间是不确定的。
 
-These analytics are used for the purpose of tracking how content on the website is consumed, how many people visit the website in general, and which other websites link here. This makes it easier to engage with the community and determine which areas of the website should be improved, for example if extra time should be spent on facilitating mobile reading.
 
-This data is not shared with third parties.
+这些分析的目的是跟踪网站上的内容是如何被消费的，一般有多少人访问该网站，以及哪些其他网站链接这里。这使得人们更容易与社区交流，并决定网站的哪些地方需要改进，比如是否应该把额外的时间花在促进移动阅读上。
 
-## Advertisement
+这些信息不会与第三方分享。
 
-This website uses a third-party advertisement server that may use cookies to track activities on the website to measure engagement with advertisements.
+## 广告
 
-## Comments
+本网站使用第三方广告服务器，该服务器可能使用cookie跟踪网站上的活动，以衡量广告的参与度。
 
-Each chapter includes a comment section at the end that is provided by the third-party Disqus service. This service collects identity data to facilitate the reading and submission of comments, and aggregate usage information to improve their service.
+## 评论
 
-The full privacy policy of this third-party service can be found at [https://help.disqus.com/terms-and-policies/disqus-privacy-policy](https://help.disqus.com/terms-and-policies/disqus-privacy-policy).
+每个章节的末尾都有一个由第三方Disqus服务提供的注释部分。该服务收集身份数据以方便阅读和提交评论，并聚合使用信息以改进其服务。
+
+有关此第三方服务的完整私隐政策，请参阅 [https://help.disqus.com/terms-and-policies/disqus-privacy-policy](https://help.disqus.com/terms-and-policies/disqus-privacy-policy)。

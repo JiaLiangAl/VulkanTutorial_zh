@@ -180,7 +180,7 @@ sudo apt install libxcb1-dev xorg-dev
 
 ### GLFW
 
-正如前面提到过的，Vulkan本身是一个与平台无关的API，不包括创建窗口去显示渲染结果的工具。为了从Vulkan的跨平台优势中获益，并避免Win32的可怕之处，我们将用支持Windows, Linux和MacOS的[GLFW 库](http://www.glfw.org/) 来创建窗口。还有其他可用的库能够达到这个目的，像[SDL](https://www.libsdl.org/), 但是GLFW的优点是它还抽象了Vulkan中除窗口创建之外的其他一些特定于平台的东西。
+正如前面提到过的，Vulkan本身是一个与平台无关的API，不包括创建窗口去显示渲染结果的工具。为了从Vulkan的跨平台优势中获益，并避免X11的可怕之处，我们将用支持Windows, Linux和MacOS的[GLFW 库](http://www.glfw.org/) 来创建窗口。还有其他可用的库能够达到这个目的，像[SDL](https://www.libsdl.org/), 但是GLFW的优点是它还抽象了Vulkan中除窗口创建之外的其他一些特定于平台的东西。
 
 我们将从源码安装GLFW而不是用安装包，是因为Vulkan的支持需要最近的版本。你可以在[official website](http://www.glfw.org/)找到源码。
 
@@ -350,16 +350,15 @@ SDK可以使用页面底部的按钮从[the LunarG website](https://vulkan.lunar
 
 MacOS内部的使用SDK版本是[MoltenVK](https://moltengl.com/)。在MacOS上没有对Vulkan本地的支持，所以MoltenVK实际上充当了一个层，将Vulkan API调用转换为苹果的Metal graphics框架。有了它，您可以利用Apple的Metal框架的调试和性能优势。
 
-
-After downloading it, simply extract the contents to a folder of your choice (keep in mind you will need to reference it when creating your projects on Xcode). Inside the extracted folder, in the `Applications` folder you should have some executable files that will run a few demos using the SDK. Run the `cube` executable and you will see the following:
+下载它之后，简单地将内容解压到你选择的文件夹中(注意当你在Xcode中创建工程时你将会引用到它)。在解压的文件夹内，在`Applications`文件夹中应该有一些可执行文件，它们将使用SDK运行一些演示。运行`cube `可执行文件，您将看到以下内容:
 
 ![](/images/cube_demo_mac.png)
 
 ### GLFW
 
-As mentioned before, Vulkan by itself is a platform agnostic API and does not include tools for creation a window to display the rendered results. We'll use the [GLFW library](http://www.glfw.org/) to create a window, which supports Windows, Linux and MacOS. There are other libraries available for this purpose, like [SDL](https://www.libsdl.org/), but the advantage of GLFW is that it also abstracts away some of the other platform-specific things in Vulkan besides just window creation.
+正如前面提到过的，Vulkan本身是一个与平台无关的API，不包括创建窗口去显示渲染结果的工具。我们将用支持Windows, Linux和MacOS的[GLFW 库](http://www.glfw.org/) 来创建窗口。还有其他可用的库能够达到这个目的，像[SDL](https://www.libsdl.org/), 但是GLFW的优点是它还抽象了Vulkan中除窗口创建之外的其他一些特定于平台的东西。
 
-To install GLFW on MacOS we will use the Homebrew package manager. Vulkan support for MacOS is still not fully available on the current (at the time of this writing) stable version 3.2.1. Therefore we will install the latest version of the `glfw3` package using:
+我们将用Homebrew 包管理工具在MacOS上安装GLFW。在当前(撰写本文时)的稳定版本3.2.1中，对MacOS的Vulkan支持还没有完全可用。因此，我们将安装最新版本的`glfw3`包使用:
 
 ```bash
 brew install glfw3 --HEAD
@@ -367,15 +366,17 @@ brew install glfw3 --HEAD
 
 ### GLM
 
-Vulkan does not include a library for linear algebra operations, so we'll have to download one. [GLM](http://glm.g-truc.net/) is a nice library that is designed for use with graphics APIs and is also commonly used with OpenGL.
+不像 DirectX 12, Vulkan 没有包含线性代数操作的库，所以，我们必须下载一个，[GLM](http://glm.g-truc.net/)是一个很好的库，它是为图形api设计的，通常也与OpenGL一起使用。
 
-It is a header-only library that can be installed from the `glm` package:
+它是一个 header-only 库，可以通过`glm`包来安装：
 
 ```bash
 brew install glm
 ```
 
-### Setting up Xcode
+### 设置 Xcode
+
+
 
 Now that all the dependencies are installed we can set up a basic Xcode project for Vulkan. Most of the instructions here are essentially a lot of "plumbing" so we can get all the dependencies linked to the project. Also, keep in mind that during the following instructions whenever we mention the folder `vulkansdk` we are refering to the folder where you extracted the Vulkan SDK.
 
