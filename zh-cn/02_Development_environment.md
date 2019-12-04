@@ -376,19 +376,17 @@ brew install glm
 
 ### 设置 Xcode
 
+现在所有的依赖都已经安装完成，我们可以设置一个基本的Vulkan工程。这里的大多数说明本质上是大量的“管道”，因此我们可以将所有依赖项链接到项目。另外，请记住，在下面的说明中，每当我们提到文件夹`vulkansdk`时，我们指的是您提取Vulkan SDK的文件夹。
 
-
-Now that all the dependencies are installed we can set up a basic Xcode project for Vulkan. Most of the instructions here are essentially a lot of "plumbing" so we can get all the dependencies linked to the project. Also, keep in mind that during the following instructions whenever we mention the folder `vulkansdk` we are refering to the folder where you extracted the Vulkan SDK.
-
-Start Xcode and create a new Xcode project. On the window that will open select Application > Command Line Tool.
+启动Xcode，创建一个新的Xcode工程。在打开的窗口中选择 Application > Command Line Tool。
 
 ![](/images/xcode_new_project.png)
 
-Select `Next`, write a name for the project and for `Language` select `C++`.
+选择 `Next`, 为工程写一个名称 ， `Language` 选择 `C++`.
 
 ![](/images/xcode_new_project_2.png)
 
-Press `Next` and the project should have been created. Now, let's change the code in the generated `main.cpp` file to the following code:
+点`Next`，工程应该已经创建了。现在，让我们修改生成的`main.cpp`文件中的代码如下：
 
 ```c++
 #define GLFW_INCLUDE_VULKAN
@@ -427,42 +425,43 @@ int main() {
     return 0;
 }
 ```
+请记住，您还不需要了解所有这些代码，我们只是设置一些API调用来确保一切正常。
 
-Keep in mind you are not required to understand all this code is doing yet, we are just setting up some API calls to make sure everything is working.
+Xcode应该已经显示了一些错误，比如它找不到的库。现在，我们将开始配置项目以消除这些错误。在 *Project Navigator* 面板上选择您的项目。打开 *Build Settings* 选项卡，然后:
 
-Xcode should already be showing some errors such as libraries it cannot find. We will now start configuring the project to get rid of those errors. On the *Project Navigator* panel select your project. Open the *Build Settings* tab and then:
 
-* Find the **Header Search Paths** field and add a link to `/usr/local/include` (this is where Homebrew installs headers, so the glm and glfw3 header files should be there) and a link to `vulkansdk/macOS/include` for the Vulkan headers.
-* Find the **Library Search Paths** field and add a link to `/usr/local/lib` (again, this is where Homebrew installs libraries, so the glm and glfw3 lib files should be there) and a link to `vulkansdk/macOS/lib`.
+* 找到 **Header Search Paths** 字段，添加链接到 `/usr/local/include` (这是Homebrew 头文件安装的地方，所以glm和glfw3的头文件也应该在这里) 和到 `vulkansdk/macOS/include` Vulkan的头文件的链接。
+* 找到 **Library Search Paths** 字段，添加到`/usr/local/lib` 的链接(一样的，这里是Homebrew库文件安装的地方，所以glm和glfw3的lib 文件应该在这里)，和到`vulkansdk/macOS/lib`的链接。
 
-It should look like so (obviously, paths will be different depending on where you placed on your files):
+它应该看起来是这样的(显然，路径将是不同的，取决于你放在你的文件):
 
 ![](/images/xcode_paths.png)
 
-Now, in the *Build Phases* tab, on **Link Binary With Libraries** we will add both the `glfw3` and the `vulkan` frameworks. To make things easier we will be adding he dynamic libraries in the project (you can check the documentation of these libraries if you want to use the static frameworks).
+现在，在*Build Phases* 标签中，在**Link Binary With Libraries**上，我们将添加`glfw3`和`vulkan` 框架。为了使事情更简单，我们将在项目中添加动态库(如果您想使用静态框架，可以查看这些库的文档)。
+* 对于glfw，打开`/usr/local/lib`文件夹，你会发现一个类似`libglfw.3.x.dylib`的文件名。(“x”是库的版本号，它可能会有所不同，这取决于你从自制程序包下载)。只需将该文件拖到Xcode上的Linked Frameworks和Libraries选项卡。
 
-* For glfw open the folder `/usr/local/lib` and there you will find a file name like `libglfw.3.x.dylib` ("x" is the library's version number, it might be different depending on when you downloaded the package from Homebrew). Simply drag that file to the Linked Frameworks and Libraries tab on Xcode.
-* For vulkan, go to `vulkansdk/macOS/lib`. Do the same for the file both files `libvulkan.1.dylib` and `libvulkan.1.x.xx.dylib` (where "x" will be the version number of the the SDK you downloaded).
+* 对于vulkan，转到`vulkansdk/macOS/lib`。对两个文件`libvulkan.1.dylib`和`libvulkan.1.x.xx.dylib`(其中“x”为您下载的SDK版本号)执行相同的操作。
 
-After adding those libraries, in the same tab on **Copy Files** change `Destination` to "Frameworks", clear the subpath and deselect "Copy only when installing". Click on the "+" sign and add all those three frameworks here aswell.
+添加这些库之后，在相同标签下的**Copy Files** 上修改`Destination`为"Frameworks"，清空子路径，取消选择"Copy only when installing"。点击“+”符号同样在这添加所有这三个框架
 
-Your Xcode configuration should look like:
+你的Xcode配置应该看起来像这样：
 
 ![](/images/xcode_frameworks.png)
 
-The last thing you need to setup are a couple of environment variables. On Xcode toolbar go to `Product` > `Scheme` > `Edit Scheme...`, and in the `Arguments` tab add the two following environment variables:
+最后一件事，你需要设置一对环境变量。在Xcode的工具栏中转到 `Product` > `Scheme` > `Edit Scheme...`，在`Arguments`标签中添加如下两个环境变量：
 
 * VK_ICD_FILENAMES = `vulkansdk/macOS/etc/vulkan/icd.d/MoltenVK_icd.json`
 * VK_LAYER_PATH = `vulkansdk/macOS/etc/vulkan/explicit_layer.d`
 
-It should look like so:
+它应该看起来像这样：
 
 ![](/images/xcode_variables.png)
 
-Finally, you should be all set! Now if you run the project (remembering to setting the build configuration to Debug or Release depending on the configuration you chose) you should see the following:
+最终，您应该都准备好了!现在，如果你运行这个项目(记住把构建配置设置为Debug或Release取决于你选择的配置)，你应该看到以下内容:
 
 ![](/images/xcode_output.png)
 
-The number of extensions should be non-zero. The other logs are from the libraries, you might get different messages from those depending on your configuration.
+extensions数量应该为非零。其它日志来自库，你可能从你配置的依赖中得到不对的信息。
 
-You are now all set for [the real thing](!zh-cn/Drawing_a_triangle/Setup/Base_code).
+你已经准备好了干[真正的事](!zh-cn/Drawing_a_triangle/Setup/Base_code).
+
