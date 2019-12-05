@@ -107,6 +107,7 @@ for fn in os.listdir('images'):
 
 create_ebook('en')
 create_ebook('fr')
+create_ebook('zh-cn')
 
 for fn in generatedPngs:
     os.remove(fn)

@@ -1,5 +1,5 @@
-## Creating an instance
-
+## 创建实例
+您首先要做的就是通过创建一个*实例(instance)*来初始化Vulkan库。
 The very first thing you need to do is initialize the Vulkan library by creating
 an *instance*. The instance is the connection between your application and the
 Vulkan library and creating it involves specifying some details about your
