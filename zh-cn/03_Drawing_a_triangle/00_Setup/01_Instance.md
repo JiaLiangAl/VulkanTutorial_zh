@@ -1,12 +1,7 @@
 ## 创建实例
-您首先要做的就是通过创建一个*实例(instance)*来初始化Vulkan库。
-The very first thing you need to do is initialize the Vulkan library by creating
-an *instance*. The instance is the connection between your application and the
-Vulkan library and creating it involves specifying some details about your
-application to the driver.
+您首先要做的就是通过创建一个 *实例(instance)* 来初始化Vulkan库。实例是应用程序和Vulkan库之间的连接，创建它需要将应用程序的一些细节指定给驱动程序。
 
-Start by adding a `createInstance` function and add a call to it in the
-`initVulkan` function.
+首先添加一个`createInstance`函数，然后在`initVulkan`函数中添加对它的调用。
 
 ```c++
 void initVulkan() {
